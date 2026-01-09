@@ -1,6 +1,12 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from app.api import user, blog
+from . import models
+from .db import engine
 
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
