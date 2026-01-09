@@ -7,9 +7,16 @@ DATABASE_URL=os.getenv("NEON_DB_URI")
 engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(
-    autocomit=False,
+    autocommit=False,
     autoflush=False,
     bind=engine
 )
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 Base = declarative_base()

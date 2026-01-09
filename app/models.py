@@ -4,5 +4,5 @@ from .db import Base
 class Blog(Base):
     __tablename__ = "blogs"
     id = Column(Integer, primary_key=True, index=True)
-    Title = Column(String)
+    title = Column(String)
     body = Column(String)
