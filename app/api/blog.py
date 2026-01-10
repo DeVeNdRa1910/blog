@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Request
 from ..schemas import Blog
 from ..db import get_db
 from sqlalchemy.orm import Session
@@ -31,10 +31,24 @@ def delete_blog_by_id(blog_id, db: Session = Depends(get_db)):
     # blog = db.query(models.Blog).filter(models.Blog.id == blog_id).delete(synchronize_session=False)
     # or
     blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
-    if blog:
-        db.delete(blog)
-        db.commit()
-        return {"detail": f"blog with id={blog_id} deleted successfully"}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"blog with id={blog_id} doest not exist")
-        
-    
+    if not blog:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"blog with id={blog_id} doest not exist")
+    db.delete(blog)
+    db.commit()
+    return {"detail": f"blog with id={blog_id} deleted successfully"}    
+
+@router.put('/{blog_id}', status_code=status.HTTP_202_ACCEPTED)
+def update_blog_by_id(blog_id, request: Blog, db: Session = Depends(get_db)):
+    # blog = db.query(models.Blog).filter(models.Blog.id == blog_id).update(request, synchronize_session=False)
+    # or
+    blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
+    if not blog:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"blog with id={blog_id} doest not exist")
+    blog.title = request.title
+    blog.body = request.body
+    db.commit()
+    db.refresh(blog)
+    return {
+        "status_code": status.HTTP_201_CREATED,
+        "updated_blog": blog
+    }
