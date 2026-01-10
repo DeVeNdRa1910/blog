@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Request
-from ..schemas import Blog
+from ..schemas import Blog, ResponseBlog
 from ..db import get_db
 from sqlalchemy.orm import Session
 from app import models
@@ -19,7 +19,7 @@ def get_all_the_blogs(db: Session = Depends(get_db)):
     blogs = db.query(models.Blog).all()
     return blogs
 
-@router.get("/{blog_id}", status_code=status.HTTP_200_OK)
+@router.get("/{blog_id}", status_code=status.HTTP_200_OK, response_model=ResponseBlog)
 def get_blog_by_id(blog_id, db: Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
     if not blog:
@@ -46,9 +46,7 @@ def update_blog_by_id(blog_id, request: Blog, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"blog with id={blog_id} doest not exist")
     blog.title = request.title
     blog.body = request.body
+    blog.published=request.published
     db.commit()
     db.refresh(blog)
-    return {
-        "status_code": status.HTTP_201_CREATED,
-        "updated_blog": blog
-    }
+    return blog
