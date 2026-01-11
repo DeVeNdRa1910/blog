@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Request
-from ..schemas import Blog, ResponseBlog
-from ..db import get_db
+from app.schemas import Blog, ResponseBlog
+from app.db import get_db
 from sqlalchemy.orm import Session
 from app import models
 
