@@ -8,14 +8,6 @@ class Blog(BaseModel):
     published: Optional[bool] = True
 
 
-class ResponseBlog(BaseModel):
-    title: str
-    body: str
-
-    class Config:
-        from_attributes = True
-
-
 class UserCreate(BaseModel):
     name: str
     email: str
@@ -39,7 +31,18 @@ class UserResponse(BaseModel):
 class ResponseBlog(BaseModel):
     title: str
     body: str
-    creater: UserResponse
 
     class Config:
         from_attributes = True
+
+class Login(BaseModel):
+    email: str
+    password: str
+    
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None

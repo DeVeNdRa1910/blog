@@ -4,8 +4,11 @@ from app.db import get_db
 from sqlalchemy.orm import Session
 from app import models
 from typing import List
+from ..utils.oauth2 import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_blog(request: Blog, db: Session = Depends(get_db)):
@@ -18,7 +21,7 @@ def create_blog(request: Blog, db: Session = Depends(get_db)):
     db.refresh(new_blog)
     return new_blog
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=List[ResponseBlog ])
+@router.get("/", status_code=status.HTTP_200_OK, response_model=List[ResponseBlog])
 def get_all_the_blogs(db: Session = Depends(get_db)):
     blogs = db.query(models.Blog).all()
     return blogs

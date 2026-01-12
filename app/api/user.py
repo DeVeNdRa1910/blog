@@ -53,10 +53,7 @@ def get_user_by_id(user_id, db: Session = Depends(get_db)):
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         blogs = db.query(models.Blog).filter(models.Blog.user_id == user_id).all()
-        return {
-            "user": user,
-            "blogs": blogs
-        }
+        return user
     except:
         raise HTTPException(status_code=404, detail="User not found")
     
