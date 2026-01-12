@@ -1,20 +1,24 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Request
+from fastapi import APIRouter, Depends, status, HTTPException
 from app.schemas import Blog, ResponseBlog
 from app.db import get_db
 from sqlalchemy.orm import Session
 from app import models
+from typing import List
 
 router = APIRouter()
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_blog(request: Blog, db: Session = Depends(get_db)):
-    new_blog = models.Blog(title=request.title, body=request.body)
+    
+    # Implement a check for user existance
+    
+    new_blog = models.Blog(title=request.title, body=request.body, user_id=1)
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
     return new_blog
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("/", status_code=status.HTTP_200_OK, response_model=List[ResponseBlog ])
 def get_all_the_blogs(db: Session = Depends(get_db)):
     blogs = db.query(models.Blog).all()
     return blogs

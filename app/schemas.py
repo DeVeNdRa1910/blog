@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class Blog(BaseModel):
@@ -31,6 +31,15 @@ class UserResponse(BaseModel):
     id: int
     name: str
     email: str
+    blogs: List[Blog] = []
+
+    class Config:
+        from_attributes = True
+
+class ResponseBlog(BaseModel):
+    title: str
+    body: str
+    creater: UserResponse
 
     class Config:
         from_attributes = True
