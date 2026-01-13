@@ -1,39 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app import models
-from app.schemas import UserCreate, UserUpdate, UserResponse
+from app.schemas import UserUpdate, UserResponse
 from app.db import get_db
 from sqlalchemy.orm import Session
-from pwdlib import PasswordHash
 from fastapi.security import OAuth2PasswordBearer
 from ..utils.oauth2 import get_current_user
-
-password_hash = PasswordHash.recommended()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 router = APIRouter()
 
-def verify_password(plain_password, hashed_password):
-    return password_hash.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password):
-    return password_hash.hash(password)
-
-@router.post('/', status_code=status.HTTP_201_CREATED, response_model=UserResponse)
-def create_user(request: UserCreate, db: Session = Depends(get_db)):
-    isUserExist = db.query(models.User).filter(models.User.email == request.email).first()
-    hassed_password = get_password_hash(request.password)
-        
-    if isUserExist:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Email already exists")
-        
-    new_user = models.User(name=request.name, email=request.email, password=hassed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-        
-    return new_user
+@router.get('/me', status_code=status.HTTP_200_OK, response_model=UserResponse)
+def get_loggedin_users_details(db:Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
+    user = db.query(models.User).filter(models.User.email == current_user.email).first()
+    
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    return user
 
 @router.get('/', status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
 def get_all_users(db: Session = Depends(get_db)):

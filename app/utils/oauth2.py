@@ -18,7 +18,6 @@ def get_current_user(
     if credentials is None:
         raise credentials_exception
 
-    print(credentials)
     token = credentials.credentials
 
     return verify_token(token, credentials_exception)
