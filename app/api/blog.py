@@ -25,7 +25,9 @@ def create_blog(request: Blog, db: Session = Depends(get_db), current_user: User
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=List[ResponseBlog])
 def get_all_the_blogs(db: Session = Depends(get_db)):
-    blogs = db.query(models.Blog).all()
+    blogs = db.query(models.Blog).filter(models.Blog.published == True).all()
+    # published_blogs = [blog for blog in blogs if blog.published]
+    # published_blog = list(filter(lambda blog: blog.published, blogs))
     return blogs
 
 @router.get("/me", status_code=status.HTTP_200_OK)
