@@ -5,6 +5,7 @@ from app.db import get_db
 from sqlalchemy.orm import Session
 from pwdlib import PasswordHash
 from fastapi.security import OAuth2PasswordBearer
+from ..utils.oauth2 import get_current_user
 
 password_hash = PasswordHash.recommended()
 
@@ -34,7 +35,7 @@ def create_user(request: UserCreate, db: Session = Depends(get_db)):
         
     return new_user
 
-@router.get('/', status_code=status.HTTP_200_OK)
+@router.get('/', status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
 def get_all_users(db: Session = Depends(get_db)):
     try:
         users = db.query(models.User).all()
@@ -46,7 +47,7 @@ def get_all_users(db: Session = Depends(get_db)):
     except:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Failed get users")
     
-@router.get('/{user_id}', status_code=status.HTTP_200_OK)
+@router.get('/{user_id}', status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
 def get_user_by_id(user_id, db: Session = Depends(get_db)):
     try:
         user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -57,7 +58,7 @@ def get_user_by_id(user_id, db: Session = Depends(get_db)):
     except:
         raise HTTPException(status_code=404, detail="User not found")
     
-@router.delete('/{user_id}', status_code=status.HTTP_200_OK)
+@router.delete('/{user_id}', status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
 def delete_user_by_id(user_id, db: Session = Depends(get_db)):
     try:
         user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -69,7 +70,7 @@ def delete_user_by_id(user_id, db: Session = Depends(get_db)):
     except: 
         raise  HTTPException(status_code=status.HTTP_404_NOT_FOUND , detail="User not found")
     
-@router.patch('/{user_id}', status_code=status.HTTP_200_OK)
+@router.patch('/{user_id}', status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
 def update_partial_user_data(user_id, request: UserUpdate, db: Session = Depends(get_db)):
     try:
         user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -94,7 +95,7 @@ def update_partial_user_data(user_id, request: UserUpdate, db: Session = Depends
     except:
         raise HTTPException(status_code=404, detail="User not found")
     
-@router.put("/{user_id}", status_code=status.HTTP_200_OK)
+@router.put("/{user_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
 def update_complete_user_data(user_id, request: UserUpdate, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
 
