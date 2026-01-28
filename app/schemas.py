@@ -29,6 +29,7 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 class ResponseBlog(BaseModel):
+    id: int
     title: str
     body: str
     published: Optional[bool]
